@@ -1,4 +1,4 @@
-module github.com/ruknez/OTUS_GOLANG_hw/blob/hw02_unpack_string/hw02_unpack_string
+module github.com/ruknez/OTUS_GOLANG_hw/hw02_unpack_string
 
 go 1.16
 
