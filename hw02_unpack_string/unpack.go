@@ -10,19 +10,16 @@ import (
 var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(inPutStr string) (string, error) {
-
 	var outPutbug strings.Builder
 	var prevRun *rune
 	ignore := false
 
 	for _, run := range inPutStr {
-
 		if run == '\\' && !ignore {
 			ignore = true
 			continue
 		}
 		if unicode.IsDigit(run) && !ignore {
-
 			if prevRun == nil {
 				return "", ErrInvalidString
 			}
@@ -44,7 +41,6 @@ func Unpack(inPutStr string) (string, error) {
 		}
 		*prevRun = run
 		ignore = false
-
 	}
 	if prevRun != nil {
 		outPutbug.WriteString(string(*prevRun))
