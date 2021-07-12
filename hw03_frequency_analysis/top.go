@@ -9,17 +9,6 @@ import (
 var re = regexp.MustCompile(`[\p{L}^-]+`)
 
 func additionalTask(inputWord string) []string {
-	inputWord = strings.ToLower(inputWord)
-	/*
-		rezult := re.FindAllString(strings.ToLower(inputWord), -1)
-
-		if len(rezult) != 1 && rezult[1] != "-" {
-
-			fmt.Println("ERRRRROOOORRRRR", "len = ", len(rezult), "  rez = ", rezult, "   inputWord = ", inputWord)
-			fmt.Printf("%q", rezult)
-			return "", errors.New("additionalTask: problem with input data")
-		}
-	*/
 	return re.FindAllString(strings.ToLower(inputWord), -1)
 }
 
@@ -31,15 +20,10 @@ type wordCountPair struct {
 }
 
 func Top10(inputData string) []string {
-	// test()
-	// return nil
-
-	// inputData = "dog,two"
 	if len(inputData) == 0 {
 		return nil
 	}
 
-	// inputData = "a  c b   a  g bc"
 	wordsSlice := strings.Fields(inputData)
 	wordCountMap := make(map[string]uint64)
 
@@ -60,6 +44,12 @@ func Top10(inputData string) []string {
 		pairSlice = append(pairSlice, wordCountPair{key, val})
 	}
 
+	// Можно сделать без слайса структур. нужен только слайс слов и мапа слово - счётчик.
+	// В функции сортировки слайса используем замыкание на мапу, и в итоге получим отсортированный
+	// слайс слов, где первые N - это и есть TopN.
+	// Но сложность алгоритма не должна измениться, мне все-равно надо создавать слайс слов так как
+	// они изменились
+	// Вообще можно создать функцию возвращающую топN элементов и не сортирующую весь массив. Но что-то пока-что сложно((
 	sort.SliceStable(pairSlice, func(i, j int) bool {
 		if pairSlice[i].count != pairSlice[j].count {
 			return pairSlice[i].count > pairSlice[j].count
