@@ -44,7 +44,6 @@ func (ls *list) Back() *ListItem {
 }
 
 func (ls *list) PushFront(v interface{}) *ListItem {
-
 	newListItem := new(ListItem)
 	newListItem.Value = v
 	newListItem.prev = nil
@@ -80,17 +79,16 @@ func (ls *list) PushBack(v interface{}) *ListItem {
 }
 
 func (ls *list) Remove(current *ListItem) {
-	if current == nil {
+	switch current {
+	case nil:
 		return
-	}
-
-	if ls.header == current {
+	case ls.header:
 		ls.header = current.next
 		current = nil
-	} else if ls.tail == current {
+	case ls.tail:
 		ls.tail = current.prev
 		current = nil
-	} else {
+	default:
 		current.next.prev = current.prev
 		current.prev.next = current.next
 		current = nil

@@ -80,7 +80,6 @@ func TestCacheMultithreading(t *testing.T) {
 
 func TestCacheMyTests(t *testing.T) {
 	t.Run("MyTests", func(t *testing.T) {
-
 		c := NewCache(3)
 
 		require.Equal(t, 0, c.Len())
@@ -129,6 +128,5 @@ func TestCacheMyTests(t *testing.T) {
 
 		require.Equal(t, nil, val)
 		require.Equal(t, 0, c.Len())
-
 	})
 }

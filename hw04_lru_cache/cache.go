@@ -40,7 +40,6 @@ func (lru *lruCache) Set(key Key, value interface{}) bool {
 		backItem := lru.queue.Back()
 		delete(lru.items, backItem.Value.(*cacheItem).key)
 		lru.queue.Remove(backItem)
-
 	}
 	lru.items[key] = lru.queue.PushFront(&cacheItem{key, value})
 	return false
