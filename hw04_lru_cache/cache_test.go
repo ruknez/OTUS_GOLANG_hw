@@ -95,7 +95,7 @@ func TestCacheMyTests(t *testing.T) {
 			require.False(t, ok)
 			require.Equal(t, nil, val)
 		}
-		
+
 		for i := 3; i < 6; i++ {
 			val, ok := c.Get(Key(strconv.Itoa(i)))
 			require.True(t, ok)
