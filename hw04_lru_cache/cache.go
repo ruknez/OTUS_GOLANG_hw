@@ -1,6 +1,9 @@
 package hw04lrucache
 
-import "log"
+import (
+	"log"
+	"sync"
+)
 
 type Key string
 
@@ -13,6 +16,7 @@ type Cache interface {
 }
 
 type lruCache struct {
+	mtx      sync.Mutex
 	capacity int
 	queue    List
 	items    map[Key]*ListItem
@@ -32,6 +36,8 @@ func NewCache(capacity int) Cache {
 }
 
 func (lru *lruCache) Set(key Key, value interface{}) bool {
+	lru.mtx.Lock()
+	defer lru.mtx.Unlock()
 	if val, exists := lru.items[key]; exists {
 		lru.queue.MoveToFront(val)
 		val.Value.(*cacheItem).value = value
@@ -46,6 +52,8 @@ func (lru *lruCache) Set(key Key, value interface{}) bool {
 }
 
 func (lru *lruCache) Get(key Key) (interface{}, bool) {
+	lru.mtx.Lock()
+	defer lru.mtx.Unlock()
 	if val, exists := lru.items[key]; exists {
 		lru.queue.MoveToFront(val)
 		return val.Value.(*cacheItem).value, true
@@ -54,18 +62,24 @@ func (lru *lruCache) Get(key Key) (interface{}, bool) {
 }
 
 func (lru *lruCache) Clear() {
+	lru.mtx.Lock()
+	defer lru.mtx.Unlock()
 	lru.queue = NewList()
 	lru.items = make(map[Key]*ListItem, lru.capacity)
 }
 
 func (lru *lruCache) Len() int {
+	lru.mtx.Lock()
+	defer lru.mtx.Unlock()
 	if len(lru.items) != lru.queue.Len() {
-		log.Fatal("len(lru.items) ", len(lru.items), " != lru.queue.Len() ", lru.queue.Len())
+		log.Panic("len(lru.items) ", len(lru.items), " != lru.queue.Len() ", lru.queue.Len())
 	}
 	return len(lru.items)
 }
 
 func (lru *lruCache) Remove(key Key) bool {
+	lru.mtx.Lock()
+	defer lru.mtx.Unlock()
 	if val, ok := lru.items[key]; ok {
 		lru.queue.Remove(val)
 		delete(lru.items, key)
