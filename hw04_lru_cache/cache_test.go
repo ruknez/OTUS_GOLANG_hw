@@ -77,3 +77,58 @@ func TestCacheMultithreading(t *testing.T) {
 
 	wg.Wait()
 }
+
+func TestCacheMyTests(t *testing.T) {
+	t.Run("MyTests", func(t *testing.T) {
+
+		c := NewCache(3)
+
+		require.Equal(t, 0, c.Len())
+
+		for i := 0; i < 6; i++ {
+			c.Set(Key(strconv.Itoa(i)), i)
+		}
+
+		require.Equal(t, 3, c.Len())
+
+		for i := 0; i < 3; i++ {
+			val, ok := c.Get(Key(strconv.Itoa(i)))
+			require.False(t, ok)
+			require.Equal(t, nil, val)
+		}
+
+		for i := 3; i < 6; i++ {
+			val, ok := c.Get(Key(strconv.Itoa(i)))
+			require.True(t, ok)
+			require.Equal(t, i, val)
+		}
+
+		c.Clear()
+
+		require.Equal(t, 0, c.Len())
+
+		for i := 3; i < 6; i++ {
+			val, ok := c.Get(Key(strconv.Itoa(i)))
+			require.False(t, ok)
+			require.Equal(t, nil, val)
+		}
+
+		c.Set(Key(strconv.Itoa(6)), 6)
+		val, ok := c.Get(Key(strconv.Itoa(6)))
+		require.True(t, ok)
+		require.Equal(t, 6, val)
+
+		err := c.Remove(Key(strconv.Itoa(6)))
+		require.True(t, err)
+
+		val, ok = c.Get(Key(strconv.Itoa(6)))
+		require.False(t, ok)
+
+		err = c.Remove(Key(strconv.Itoa(6)))
+		require.False(t, err)
+
+		require.Equal(t, nil, val)
+		require.Equal(t, 0, c.Len())
+
+	})
+}
