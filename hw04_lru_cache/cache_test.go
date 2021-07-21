@@ -76,8 +76,8 @@ func TestCacheMultithreading(t *testing.T) {
 	wg.Wait()
 }
 
-func TestCacheMyTests(t *testing.T) {
-	t.Run("MyTests", func(t *testing.T) {
+func TestWorkWithCach(t *testing.T) {
+	t.Run("Work with cach", func(t *testing.T) {
 		c := NewCache(3)
 
 		require.Equal(t, 0, c.Len())

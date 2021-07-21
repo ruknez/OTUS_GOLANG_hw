@@ -21,7 +21,7 @@ nil <- (prev) front <-> ... <-> elem <-> ... <-> back (next) -> nil
 **Гарантируется, что методы Remove и MoveToFront вызываются от существующих в списке элементов.**
 
 Элемент списка ListItem:
-- Value interface{}  // значение
+- value interface{}  // значение
 - next *ListItem     // следующий элемент
 - prev *ListItem     // предыдущий элемент
 

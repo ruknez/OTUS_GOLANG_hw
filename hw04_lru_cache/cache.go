@@ -40,11 +40,12 @@ func (lru *lruCache) Set(key Key, value interface{}) bool {
 	defer lru.mtx.Unlock()
 	if val, exists := lru.items[key]; exists {
 		lru.queue.MoveToFront(val)
-		val.Value.(*cacheItem).value = value
+		val.Getvalue().(*cacheItem).value = value
 		return true
-	} else if lru.queue.Len() >= lru.capacity {
+	}
+	if lru.queue.Len() >= lru.capacity {
 		backItem := lru.queue.Back()
-		delete(lru.items, backItem.Value.(*cacheItem).key)
+		delete(lru.items, backItem.Getvalue().(*cacheItem).key)
 		lru.queue.Remove(backItem)
 	}
 	lru.items[key] = lru.queue.PushFront(&cacheItem{key, value})
@@ -56,7 +57,7 @@ func (lru *lruCache) Get(key Key) (interface{}, bool) {
 	defer lru.mtx.Unlock()
 	if val, exists := lru.items[key]; exists {
 		lru.queue.MoveToFront(val)
-		return val.Value.(*cacheItem).value, true
+		return val.Getvalue().(*cacheItem).value, true
 	}
 	return nil, false
 }

@@ -1,9 +1,5 @@
 package hw04lrucache
 
-import (
-	"fmt"
-)
-
 type List interface {
 	Len() int
 	Front() *ListItem
@@ -12,19 +8,22 @@ type List interface {
 	PushBack(v interface{}) *ListItem
 	Remove(i *ListItem)
 	MoveToFront(i *ListItem)
-	PrintList(s int)
 }
 
 type ListItem struct {
-	Value interface{}
-	next  *ListItem // зачем их делать public ???
-	prev  *ListItem // зачем их делать public ???
+	value interface{}
+	next  *ListItem
+	prev  *ListItem
+}
+
+func (ls *ListItem) Getvalue() interface{} {
+	return ls.value
 }
 
 type list struct {
 	header *ListItem
 	tail   *ListItem
-	len    uint64
+	len    int
 }
 
 func NewList() List {
@@ -32,7 +31,7 @@ func NewList() List {
 }
 
 func (ls *list) Len() int {
-	return int(ls.len)
+	return ls.len
 }
 
 func (ls *list) Front() *ListItem {
@@ -45,7 +44,7 @@ func (ls *list) Back() *ListItem {
 
 func (ls *list) PushFront(v interface{}) *ListItem {
 	newListItem := new(ListItem)
-	newListItem.Value = v
+	newListItem.value = v
 	newListItem.prev = nil
 	newListItem.next = ls.header
 
@@ -63,7 +62,7 @@ func (ls *list) PushFront(v interface{}) *ListItem {
 
 func (ls *list) PushBack(v interface{}) *ListItem {
 	newListItem := new(ListItem)
-	newListItem.Value = v
+	newListItem.value = v
 	newListItem.next = nil
 
 	newListItem.prev = ls.tail
@@ -84,15 +83,19 @@ func (ls *list) Remove(current *ListItem) {
 		return
 	case ls.header:
 		ls.header = current.next
-		current = nil
+		if ls.header != nil && ls.header.prev != nil {
+			ls.header.prev = nil
+		}
 	case ls.tail:
 		ls.tail = current.prev
-		current = nil
+		if ls.tail != nil && ls.tail.next != nil {
+			ls.header.prev = nil
+		}
 	default:
 		current.next.prev = current.prev
 		current.prev.next = current.next
-		current = nil
 	}
+	current = nil
 	ls.len--
 }
 
@@ -106,23 +109,22 @@ func (ls *list) MoveToFront(current *ListItem) {
 		current.next = ls.header
 		ls.tail = current.prev
 		current.prev.next = nil
-		current.prev = nil
-		ls.header = current
 	} else {
 		current.prev.next = current.next
 		current.next.prev = current.prev
-		current.next = ls.header
-		current.prev = nil
-		ls.header = current
 	}
+	current.next = ls.header
+	current.prev = nil
+	ls.header = current
 }
 
-func (ls *list) PrintList(s int) {
-	fmt.Println("Print List ", s)
-	currentItem := ls.header
-	for i := 0; i < int(ls.len); i++ {
-		fmt.Printf("i = %d %v ", i, currentItem.Value)
-		currentItem = currentItem.next
-	}
-	fmt.Println("\n ")
-}
+//
+// func (ls *list) PrintList(s int) {
+//	fmt.Println("Print List ", s)
+//	currentItem := ls.header
+//	for i := 0; i < ls.len; i++ {
+//		fmt.Printf("i = %d %v ", i, currentItem.value)
+//		currentItem = currentItem.next
+//	}
+//	fmt.Println("\n ")
+// }
