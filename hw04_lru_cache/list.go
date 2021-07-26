@@ -95,7 +95,6 @@ func (ls *list) Remove(current *ListItem) {
 		current.next.prev = current.prev
 		current.prev.next = current.next
 	}
-	current = nil
 	ls.len--
 }
 
@@ -106,25 +105,12 @@ func (ls *list) MoveToFront(current *ListItem) {
 	ls.header.prev = current
 
 	if ls.tail == current {
-		current.next = ls.header
 		ls.tail = current.prev
-		current.prev.next = nil
 	} else {
-		current.prev.next = current.next
 		current.next.prev = current.prev
 	}
+	current.prev.next = current.next
 	current.next = ls.header
 	current.prev = nil
 	ls.header = current
 }
-
-//
-// func (ls *list) PrintList(s int) {
-//	fmt.Println("Print List ", s)
-//	currentItem := ls.header
-//	for i := 0; i < ls.len; i++ {
-//		fmt.Printf("i = %d %v ", i, currentItem.value)
-//		currentItem = currentItem.next
-//	}
-//	fmt.Println("\n ")
-// }
