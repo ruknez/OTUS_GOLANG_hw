@@ -49,14 +49,63 @@ func TestCache(t *testing.T) {
 		require.Nil(t, val)
 	})
 
+	t.Run("chek Len", func(t *testing.T) {
+		c := NewCache(3)
+
+		require.Equal(t, 0, c.Len())
+
+		for i := 0; i < 6; i++ {
+			c.Set(Key(strconv.Itoa(i)), i)
+		}
+
+		require.Equal(t, 3, c.Len())
+
+		c.Clear()
+
+		require.Equal(t, 0, c.Len())
+	})
+
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+
+		for i := 0; i < 6; i++ {
+			c.Set(Key(strconv.Itoa(i)), i)
+		}
+
+		for i := 0; i < 3; i++ {
+			val, ok := c.Get(Key(strconv.Itoa(i)))
+			require.False(t, ok)
+			require.Equal(t, nil, val)
+		}
+
+		for i := 3; i < 6; i++ {
+			val, ok := c.Get(Key(strconv.Itoa(i)))
+			require.True(t, ok)
+			require.Equal(t, i, val)
+		}
+	})
+
+	t.Run("pushing out long-unused elements", func(t *testing.T) {
+		c := NewCache(3)
+
+		for i := 0; i < 3; i++ {
+			c.Set(Key(strconv.Itoa(i)), i)
+		}
+		val, ok := c.Get(Key(strconv.Itoa(0)))
+		require.True(t, ok)
+		require.Equal(t, 0, val)
+
+		c.Set(Key("3"), 3)
+
+		for _, i := range []int{3, 0, 2} {
+			val, ok := c.Get(Key(strconv.Itoa(i)))
+			require.True(t, ok)
+			require.Equal(t, i, val)
+		}
 	})
 }
 
 func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove me if task with asterisk completed.
-
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
