@@ -84,6 +84,25 @@ func TestCache(t *testing.T) {
 			require.Equal(t, i, val)
 		}
 	})
+
+	t.Run("pushing out long-unused elements", func(t *testing.T) {
+		c := NewCache(3)
+
+		for i := 0; i < 3; i++ {
+			c.Set(Key(strconv.Itoa(i)), i)
+		}
+		val, ok := c.Get(Key(strconv.Itoa(0)))
+		require.True(t, ok)
+		require.Equal(t, 0, val)
+
+		c.Set(Key("3"), 3)
+
+		for _, i := range []int{3, 0, 2} {
+			val, ok := c.Get(Key(strconv.Itoa(i)))
+			require.True(t, ok)
+			require.Equal(t, i, val)
+		}
+	})
 }
 
 func TestCacheMultithreading(t *testing.T) {
