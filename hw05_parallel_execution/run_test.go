@@ -116,7 +116,6 @@ func TestRun(t *testing.T) {
 }
 
 func TestRunEventually(t *testing.T) {
-
 	var (
 		tasksCount     = 5
 		workersCount   = 5
