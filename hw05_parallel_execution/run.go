@@ -18,8 +18,8 @@ func Run(tasks []Task, n, m int) error {
 
 	var (
 		wg          = sync.WaitGroup{}
-		tasksChanal = make(chan Task, n)
-		errorChanal = make(chan error, n)
+		tasksChanal = make(chan Task)
+		errorChanal = make(chan error)
 		ctx, cancel = context.WithCancel(context.Background())
 	)
 	defer close(errorChanal)

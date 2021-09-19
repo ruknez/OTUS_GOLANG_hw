@@ -114,3 +114,37 @@ func TestRun(t *testing.T) {
 		require.LessOrEqual(t, runTasksCount, int32(0), "extra tasks were started")
 	})
 }
+
+func TestRunEventually(t *testing.T) {
+	var (
+		tasksCount     = 5
+		workersCount   = 5
+		maxErrorsCount = 5
+		tasks          = make([]Task, 0, tasksCount)
+		countRunTasks  int32
+		stopChannel    = make(chan struct{})
+		runTasksCount  int32
+		err            error
+	)
+
+	for i := 0; i < tasksCount; i++ {
+		tasks = append(tasks, func() error {
+			defer atomic.AddInt32(&countRunTasks, -1)
+			atomic.AddInt32(&countRunTasks, 1)
+
+			atomic.AddInt32(&runTasksCount, 1)
+			<-stopChannel
+			return nil
+		})
+	}
+
+	go func() {
+		err = Run(tasks, workersCount, maxErrorsCount)
+	}()
+
+	require.Eventually(t, func() bool { return countRunTasks == int32(tasksCount) }, 2*time.Second, 10*time.Millisecond)
+	close(stopChannel)
+
+	require.NoError(t, err)
+	require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
+}
