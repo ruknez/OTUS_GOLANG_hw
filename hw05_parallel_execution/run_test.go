@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -138,13 +139,17 @@ func TestRunEventually(t *testing.T) {
 		})
 	}
 
+	wait := sync.WaitGroup{}
+	wait.Add(1)
 	go func() {
+		defer wait.Done()
 		err = Run(tasks, workersCount, maxErrorsCount)
 	}()
 
-	require.Eventually(t, func() bool { return countRunTasks == int32(tasksCount) }, 2*time.Second, 10*time.Millisecond)
+	require.Eventually(t, func() bool { return atomic.LoadInt32(&countRunTasks) == int32(tasksCount) }, 2*time.Second, 10*time.Millisecond)
 	close(stopChannel)
 
+	wait.Wait()
 	require.NoError(t, err)
 	require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 }
