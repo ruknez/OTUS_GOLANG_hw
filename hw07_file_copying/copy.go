@@ -2,34 +2,18 @@ package main
 
 import (
 	"errors"
-	"flag"
-	"fmt"
 	"io"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 	ErrTheSameFiles          = errors.New("the same files")
-	fromInput, toInput       string
-	offsetInput, limitInput  int64
+	blockToCopy              = 1024 * 1024 * 4 // MB
 )
-
-func init() {
-	flag.StringVar(&fromInput, "from", "", "file to read from")
-	flag.StringVar(&toInput, "to", "", "file to write to")
-	flag.Int64Var(&limitInput, "limit", 0, "limit of bytes to copy")
-	flag.Int64Var(&offsetInput, "offset", 0, "offset in input file")
-}
-
-func main() {
-	flag.Parse()
-	err := Copy(fromInput, toInput, offsetInput, limitInput)
-	if err != nil {
-		fmt.Println("err = ", err)
-	}
-}
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	var toCopySize int64
@@ -55,12 +39,39 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	} else {
 		toCopySize = fullInputSize - offset
 	}
-	fmt.Println(toCopySize)
+	if limit == 0 {
+		toCopySize = fullInputSize - offset
+	}
 
-	if _, err = io.CopyN(dstFile, soursFile, toCopySize); err != nil {
+	if err = processCopy(dstFile, soursFile, toCopySize); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func processCopy(dstFile, soursFile *os.File, toCopySize int64) error {
+	var (
+		hasCopped int64
+		tmpCopy   int64
+		err       error
+	)
+
+	bar := pb.Start64(toCopySize)
+	bar.Set(pb.Bytes, true)
+	defer bar.Finish()
+
+	for ; toCopySize > 0; toCopySize -= hasCopped {
+		if toCopySize < int64(blockToCopy) {
+			tmpCopy = toCopySize
+		} else {
+			tmpCopy = int64(blockToCopy)
+		}
+		if hasCopped, err = io.CopyN(dstFile, soursFile, tmpCopy); err != nil {
+			return err
+		}
+		bar.Add64(hasCopped)
+	}
 	return nil
 }
 
