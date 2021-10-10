@@ -72,6 +72,9 @@ func processCopy(dstFile, soursFile *os.File, toCopySize int64) error {
 		}
 		bar.Add64(hasCopped)
 	}
+	if err = dstFile.Sync(); err != nil {
+		return err
+	}
 	return nil
 }
 
