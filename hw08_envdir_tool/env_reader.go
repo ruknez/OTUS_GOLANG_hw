@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"log"
+	"io"
 	"os"
+	"strings"
 )
 
 type Environment map[string]EnvValue
@@ -21,19 +23,50 @@ func ReadDir(dir string) (Environment, error) {
 	if err != nil {
 		return nil, err
 	}
-	for  _, file := range files{
-
-	}
-
 
 	resultEnv := make(Environment, len(files))
 	for _, file := range files {
 		if file.IsDir() {
 			return nil, fmt.Errorf("it is  dir = %s", file.Name())
 		}
+		if checkFileName(file.Name()) {
+			return nil, fmt.Errorf("invalid file Name = %s", file.Name())
+		}
 
+		info, errInfo := file.Info()
+		if errInfo != nil {
+			return nil, fmt.Errorf("cannot get info about %s, %w", file.Name(), errInfo)
+		}
+		if info.Size() == 0 {
+			resultEnv[info.Name()] = EnvValue{NeedRemove: true}
+			continue
+		}
+		value, errCheck := checkEnvValue(dir + file.Name())
+		if errCheck != nil {
+			return nil, fmt.Errorf("error env value %s, %w", file.Name(), errCheck)
+		}
+		resultEnv[info.Name()] = EnvValue{Value:value}
 	}
 
-	return nil, nil
+	return resultEnv, nil
 }
 
+func checkEnvValue(fileName string) (string, error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return "", fmt.Errorf("cannot open file %s %w", fileName, err)
+	}
+	reader := bufio.NewReader(file)
+	lineByte, _, errRead := reader.ReadLine()
+	if errRead != io.EOF {
+		return "", fmt.Errorf("more then one line in file %s %w", fileName, err)
+	}
+
+	line := strings.Replace(string(lineByte), "0x00", "\n", -1)
+	line = strings.TrimRight(line, " \t")
+	return line, nil
+}
+
+func checkFileName(fileName string) bool {
+	return strings.ContainsAny(fileName, "=;")
+}

@@ -14,4 +14,3 @@ func main() {
 	ReadDir(allCommandLineArgs[0])
 
 }
-
