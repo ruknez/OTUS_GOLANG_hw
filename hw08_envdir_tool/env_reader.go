@@ -41,11 +41,11 @@ func ReadDir(dir string) (Environment, error) {
 			resultEnv[info.Name()] = EnvValue{NeedRemove: true}
 			continue
 		}
-		value, errCheck := checkEnvValue(dir + file.Name())
+		value, errCheck := checkEnvValue(dir + "/" + file.Name())
 		if errCheck != nil {
 			return nil, fmt.Errorf("error env value %s, %w", file.Name(), errCheck)
 		}
-		resultEnv[info.Name()] = EnvValue{Value:value}
+		resultEnv[info.Name()] = EnvValue{Value: value}
 	}
 
 	return resultEnv, nil
@@ -57,12 +57,13 @@ func checkEnvValue(fileName string) (string, error) {
 		return "", fmt.Errorf("cannot open file %s %w", fileName, err)
 	}
 	reader := bufio.NewReader(file)
+
 	lineByte, _, errRead := reader.ReadLine()
-	if errRead != io.EOF {
+	if !(errRead == io.EOF || errRead == nil) {
 		return "", fmt.Errorf("more then one line in file %s %w", fileName, err)
 	}
 
-	line := strings.Replace(string(lineByte), "0x00", "\n", -1)
+	line := strings.Replace(string(lineByte), "\x00", "\n", -1)
 	line = strings.TrimRight(line, " \t")
 	return line, nil
 }
