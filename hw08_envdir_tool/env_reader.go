@@ -63,7 +63,7 @@ func checkEnvValue(fileName string) (string, error) {
 		return "", fmt.Errorf("more then one line in file %s %w", fileName, err)
 	}
 
-	line := strings.Replace(string(lineByte), "\x00", "\n", -1)
+	line := strings.ReplaceAll(string(lineByte), "\x00", "\n")
 	line = strings.TrimRight(line, " \t")
 	return line, nil
 }

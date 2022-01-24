@@ -13,13 +13,17 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	for envName, envValue := range env {
 		if envValue.NeedRemove {
 			if err := os.Unsetenv(envName); err != nil {
+				log.Print(fmt.Errorf("can not Unsetenv %s, value %s %w", envName, envValue.Value, err))
+				continue
 			}
 		}
 		if err := os.Setenv(envName, envValue.Value); err != nil {
 			log.Print(fmt.Errorf("can not set env %s, value %s %w", envName, envValue.Value, err))
 		}
 	}
-
+	fmt.Println("cmd = ", cmd)
+	fmt.Println("cmd[0] = ", cmd[0])
+	fmt.Println("cmd[1:] = ", cmd[1:])
 	command := exec.Command(cmd[0], cmd[1:]...)
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
@@ -32,7 +36,6 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	if err := command.Wait(); err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			// The program has exited with an exit code != 0
-
 			// This works on both Unix and Windows. Although package
 			// syscall is generally platform dependent, WaitStatus is
 			// defined for both Unix and Windows and in both cases has
