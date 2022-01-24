@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -59,7 +60,7 @@ func checkEnvValue(fileName string) (string, error) {
 	reader := bufio.NewReader(file)
 
 	lineByte, _, errRead := reader.ReadLine()
-	if !(errRead == io.EOF || errRead == nil) {
+	if !(errors.Is(errRead, io.EOF) || errRead == nil) {
 		return "", fmt.Errorf("more then one line in file %s %w", fileName, err)
 	}
 
