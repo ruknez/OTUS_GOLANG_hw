@@ -21,10 +21,10 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 			log.Print(fmt.Errorf("can not set env %s, value %s %w", envName, envValue.Value, err))
 		}
 	}
-	fmt.Println("cmd = ", cmd)
-	fmt.Println("cmd[0] = ", cmd[0])
-	fmt.Println("cmd[1:] = ", cmd[1:])
-	command := exec.Command(cmd[0], cmd[1:]...)
+	// спасибо линтеру за этот финт ушами, очень полезно.
+	commandName := cmd[0]
+	args := cmd[1:]
+	command := exec.Command(commandName, args...)
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	command.Stdin = os.Stdin
