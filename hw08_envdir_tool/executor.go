@@ -34,7 +34,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	}
 
 	if err := command.Wait(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
+		if exitErr, ok := err.(*exec.ExitError); ok { //nolint:errorlint
 			// The program has exited with an exit code != 0
 			// This works on both Unix and Windows. Although package
 			// syscall is generally platform dependent, WaitStatus is
@@ -43,10 +43,10 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 			if status, okSys := exitErr.Sys().(syscall.WaitStatus); okSys {
 				return status.ExitStatus()
 			}
-		} else {
-			log.Print(fmt.Errorf("cannot take exit code command.Wait: %w", err))
-			return -1
 		}
+	} else {
+		log.Print(fmt.Errorf("cannot take exit code command.Wait: %w", err))
+		return -1
 	}
 	return 0
 }
