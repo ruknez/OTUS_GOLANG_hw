@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
+	"path"
 	"strings"
 )
 
@@ -42,7 +44,7 @@ func ReadDir(dir string) (Environment, error) {
 			resultEnv[info.Name()] = EnvValue{NeedRemove: true}
 			continue
 		}
-		value, errCheck := checkEnvValue(dir + "/" + file.Name())
+		value, errCheck := checkEnvValue(path.Join(dir, file.Name()))
 		if errCheck != nil {
 			return nil, fmt.Errorf("error env value %s, %w", file.Name(), errCheck)
 		}
@@ -57,6 +59,13 @@ func checkEnvValue(fileName string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cannot open file %s %w", fileName, err)
 	}
+	defer func() {
+		errFile := file.Close()
+		if errFile != nil {
+			log.Println(fmt.Errorf("cannot close file %w", errFile))
+		}
+	}()
+
 	reader := bufio.NewReader(file)
 
 	lineByte, _, errRead := reader.ReadLine()

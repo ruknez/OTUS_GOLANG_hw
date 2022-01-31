@@ -44,9 +44,6 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 				return status.ExitStatus()
 			}
 		}
-	} else {
-		log.Print(fmt.Errorf("cannot take exit code command.Wait: %w", err))
-		return -1
 	}
 	return 0
 }

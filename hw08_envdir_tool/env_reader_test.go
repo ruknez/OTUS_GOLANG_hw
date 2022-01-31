@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -9,7 +8,7 @@ import (
 )
 
 func TestReadDir(t *testing.T) {
-	dir, err := ioutil.TempDir("", "example")
+	dir, err := os.MkdirTemp("", "example")
 	require.Nil(t, err)
 
 	defer func() {
